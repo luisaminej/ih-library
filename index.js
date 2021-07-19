@@ -47,6 +47,22 @@ app.get("/books", (req, res) => {
             console.log(e)})
 })
 
+
+app.get("/books/create", (req, res) => {
+    res.render("book-create")
+})
+
+app.post("/books/create", (req, res) => {
+    const { title, author, description, rating } = req.body
+
+    Book.create({title, author, description, rating})
+        .then((libroCreado) => {
+            res.redirect("/books")
+        })
+        .catch(e => console.log(e))
+})
+
+
 // QUERY PARAMS
 // Hicimos el enlace hacía los detalles para que nos lleve a otra página
 app.get("/books/:bookId", (req, res) => {
@@ -85,6 +101,51 @@ app.post("/search", (req, res) => {
 
     res.redirect(`/search?palabra=${valorFormulario.palabra}&nombre=${valorFormulario.nombre}&apellido=${valorFormulario.apellido}`)
 })
+app.get("/books/:bookId/edit", (req, res) => {
+    const { bookId } = req.params
+
+    Book.findById(bookId)
+        .then(libroEncontrado => {
+            console.log(libroEncontrado)
+            res.render("book-edit", {
+                libro: libroEncontrado
+            })
+        })                                                                                                              
+        .catch((e) => {console.log(e)})
+
+})
+
+app.post("/books/:bookId/edit", (req, res) => {
+    
+    //PARÁMETROS DE LA URL (bookId)
+    const {bookId} = req.params
+    // DATOS DEL FORMULARIO
+    const { title, description, author, rating } = req.body
+    
+    Book.findByIdAndUpdate(bookId, {title, description, author, rating}, {new: true})
+        .then(libroActualizado => {
+            res.redirect(`/books/${libroActualizado.id}`)
+
+})
+        .catch(e => console.log(e))
+})
+
+app.post("/books/:bookId/delete", (req, res) => {
+    const { bookId } = req.params
+
+
+    Book.findByIdAndDelete(bookId)
+        .then(() =>  {
+            res.redirect("/books")
+
+        }) 
+        .catch(e => console.log(e))
+})
+
+app.get("/books/create", (req, res) => {
+    res.render("book-create")
+})
+
 
 
 
